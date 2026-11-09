@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="sq" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mist Fragrance House — Gjej aromën që të përfaqëson</title>
+<meta name="description" content="Mist Fragrance House — mbi 500 parfume me çmime të ulëta. Porosit online me disa klikime.">
+<meta name="theme-color" content="#FAF7F0">
+<link rel="icon" href="img/monogram.svg" type="image/svg+xml">
+<script>
+  // theme before paint: light is the default
+  try { var t = localStorage.getItem("mist_theme"); if (t === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-grid-lg" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="13" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-grid-sm" viewBox="0 0 24 24"><g fill="currentColor"><rect x="3" y="3" width="4.6" height="4.6" rx=".8"/><rect x="9.7" y="3" width="4.6" height="4.6" rx=".8"/><rect x="16.4" y="3" width="4.6" height="4.6" rx=".8"/><rect x="3" y="9.7" width="4.6" height="4.6" rx=".8"/><rect x="9.7" y="9.7" width="4.6" height="4.6" rx=".8"/><rect x="16.4" y="9.7" width="4.6" height="4.6" rx=".8"/><rect x="3" y="16.4" width="4.6" height="4.6" rx=".8"/><rect x="9.7" y="16.4" width="4.6" height="4.6" rx=".8"/><rect x="16.4" y="16.4" width="4.6" height="4.6" rx=".8"/></g></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<!-- ============ HEADER ============ -->
+<header class="top" id="top">
+  <a href="#" class="logo" aria-label="Mist Fragrance House — fillimi"><span class="logo__mark"></span></a>
+
+  <label class="search" aria-label="Kërko parfum">
+    <svg><use href="#i-search"/></svg>
+    <input id="search" type="search" placeholder="Kërko parfum ose markë…" autocomplete="off">
+  </label>
+
+  <div class="top__actions">
+    <button class="icon-btn" id="themeBtn" aria-label="Ndrysho temën (e çelët / e errët)">
+      <svg class="ico-moon"><use href="#i-moon"/></svg>
+      <svg class="ico-sun"><use href="#i-sun"/></svg>
+    </button>
+    <button class="icon-btn bag-btn" id="bagBtn" aria-label="Hap shportën">
+      <svg><use href="#i-bag"/></svg>
+      <b class="bag-btn__count" id="bagCount">0</b>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ============ INTRO ============ -->
+  <section class="intro">
+    <p class="eyebrow"><span class="star">✦</span> Mist Fragrance House</p>
+    <h1>Gjej aromën që të <em>përfaqëson.</em></h1>
+    <p class="intro__lead">Mbi <b id="statCount">500</b> parfume nga <b id="statBrands">60</b> marka — zgjidh, plotëso adresën dhe dërgo. Kaq.</p>
+  </section>
+
+  <!-- ============ SHOP ============ -->
+  <section class="shop" id="koleksioni">
+    <div class="toolbar">
+      <div class="chips" role="tablist" aria-label="Kategoria">
+        <button class="chip is-on" data-g="all" role="tab" aria-selected="true">Të gjitha</button>
+        <button class="chip" data-g="f" role="tab" aria-selected="false">Për femra</button>
+        <button class="chip" data-g="m" role="tab" aria-selected="false">Për meshkuj</button>
+        <button class="chip" data-g="u" role="tab" aria-selected="false">Unisex</button>
+      </div>
+      <div class="toolbar__right">
+        <label class="sel"><span class="sr">Marka</span>
+          <select id="brandSel"><option value="">Të gjitha markat</option></select>
+        </label>
+        <label class="sel"><span class="sr">Rendit</span>
+          <select id="sortSel">
+            <option value="new">Më të rejat</option>
+            <option value="low">Çmimi: nga më i ulëti</option>
+            <option value="high">Çmimi: nga më i larti</option>
+            <option value="off">Zbritja më e madhe</option>
+            <option value="az">Emri A–Z</option>
+          </select>
+        </label>
+        <div class="view" role="group" aria-label="Madhësia e pamjes">
+          <button class="view__btn is-on" data-size="lg" aria-label="Ikona të mëdha" title="Ikona të mëdha"><svg><use href="#i-grid-lg"/></svg></button>
+          <button class="view__btn" data-size="sm" aria-label="Ikona të vogla" title="Ikona të vogla"><svg><use href="#i-grid-sm"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+
+    <div class="grid" id="grid" data-size="lg"></div>
+    <p class="none" id="none" hidden>Asnjë parfum nuk u gjet. Provo një kërkim tjetër.</p>
+    <div class="more"><button class="btn btn--line" id="moreBtn">Shfaq më shumë</button></div>
+  </section>
+
+  <!-- ============ HOW TO ORDER ============ -->
+  <section class="how" id="si-porosis">
+    <h2>Si <em>porosis</em></h2>
+    <ol class="steps">
+      <li><span>01</span><h3>Zgjidh aromën</h3><p>Shto në shportë një ose më shumë parfume.</p></li>
+      <li><span>02</span><h3>Plotëso të dhënat</h3><p>Emri, mbiemri, telefoni, email-i, qyteti dhe adresa.</p></li>
+      <li><span>03</span><h3>Dërgo porosinë</h3><p>Një klik dhe porosia na vjen direkt. Ne të telefonojmë për ta konfirmuar.</p></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="foot" id="kontakt">
+  <span class="logo__mark logo__mark--foot"></span>
+  <div class="foot__links">
+    <a class="js-ig" href="#" target="_blank" rel="noopener">Instagram</a>
+    <a class="js-ms" href="#" target="_blank" rel="noopener">Messenger</a>
+  </div>
+  <small>© <span id="year">2026</span> Mist Fragrance House</small>
+</footer>
+
+<!-- ============ BAG / CHECKOUT DRAWER ============ -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Shporta" aria-hidden="true">
+  <div class="drawer__head">
+    <h2 id="drawerTitle">Shporta</h2>
+    <button class="icon-btn" id="drawerClose" aria-label="Mbyll"><svg><use href="#i-x"/></svg></button>
+  </div>
+
+  <div class="pane" data-pane="bag">
+    <ul class="bag" id="bagList"></ul>
+    <div class="empty" id="bagEmpty">
+      <p>Shporta është bosh.</p>
+      <button class="btn btn--line" data-close>Shiko parfumet</button>
+    </div>
+    <div class="sum" id="bagSum">
+      <div class="sum__row"><span>Totali</span><b id="bagTotal">0.00 €</b></div>
+      <p class="sum__note">Transporti konfirmohet në telefon.</p>
+      <button class="btn btn--solid btn--wide" id="toCheckout">Vazhdo te porosia</button>
+    </div>
+  </div>
+
+  <form class="pane form" data-pane="form" id="orderForm" novalidate hidden>
+    <p class="form__intro">Ku ta sjellim porosinë?</p>
+    <div class="row2">
+      <label class="f"><span>Emri *</span><input name="emri" autocomplete="given-name" required></label>
+      <label class="f"><span>Mbiemri *</span><input name="mbiemri" autocomplete="family-name" required></label>
+    </div>
+    <label class="f"><span>Numri i telefonit *</span><input name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="+383 4x xxx xxx" required></label>
+    <label class="f"><span>Email *</span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="emri@shembull.com" required></label>
+    <label class="f"><span>Qyteti *</span>
+      <select name="qyteti" id="citySel" required><option value="">Zgjidh qytetin</option></select>
+    </label>
+    <label class="f" id="cityOtherWrap" hidden><span>Shkruaj qytetin / fshatin *</span><input name="qytetiTjeter" autocomplete="address-level2"></label>
+    <label class="f"><span>Lagjja ose rruga *</span><input name="rruga" autocomplete="address-line1" placeholder="p.sh. Lagjja Dardania / Rr. Agim Ramadani" required></label>
+    <label class="f"><span>Numri i objektit ose shtëpisë *</span><input name="nr" autocomplete="address-line2" placeholder="p.sh. Objekti 12, hyrja 2, kati 3 / Shtëpia nr. 5" required></label>
+    <label class="f"><span>Shënime shtesë <i>(opsionale)</i></span><textarea name="shenim" rows="2" placeholder="Orari kur je në shtëpi, pika referimi…"></textarea></label>
+    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div class="sum sum--form">
+      <div class="sum__row"><span>Totali</span><b id="formTotal">0.00 €</b></div>
+      <p class="sum__note">Transporti dhe pagesa konfirmohen në telefon.</p>
+      <button type="submit" class="btn btn--solid btn--wide" id="submitBtn">Dërgo porosinë</button>
+      <p class="form__err" id="formErr" hidden></p>
+      <button type="button" class="link" id="backToBag">← Kthehu te shporta</button>
+    </div>
+  </form>
+
+  <div class="pane done" data-pane="done" hidden>
+    <span class="done__star">✦</span>
+    <h3>Faleminderit!</h3>
+    <p class="done__code">Porosia <b id="orderCode">MIST-0000</b> u dërgua</p>
+    <p>E morëm porosinë tënde. Do të të kontaktojmë në telefon sa më shpejt për ta konfirmuar.</p>
+    <pre class="done__msg" id="orderText"></pre>
+    <div class="done__btns">
+      <button class="btn btn--line btn--wide" data-close>Vazhdo të shikosh parfumet</button>
+    </div>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/config.js?v=5"></script>
+<script src="js/products.js?v=2"></script>
+<script src="js/main.js?v=4"></script>
+</body>
+</html>
