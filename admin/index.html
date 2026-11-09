@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="sq" data-theme="light">
+<head>
+<meta charset="utf-8">
+<script>
+  if (location.protocol === "http:" && /mistfragrance\.org$/.test(location.hostname)) location.replace("https://mistfragrance.org" + location.pathname);
+  try { if (localStorage.getItem("mist_theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Mist Admin</title>
+<meta name="theme-color" content="#FAF7F0">
+<link rel="icon" href="../img/monogram.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+
+<!-- ============ LOCK ============ -->
+<section class="lock" id="lock">
+  <form class="lock__card" id="lockForm" autocomplete="off">
+    <span class="lock__mark"></span>
+    <p class="lock__sub">Paneli i administrimit</p>
+    <label class="lock__lbl" for="pin">Kodi i hyrjes</label>
+    <input id="pin" class="lock__pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="••••••" autofocus>
+    <label class="check"><input type="checkbox" id="remember"> <span>Mbaj mend këtë pajisje</span></label>
+    <p class="lock__err" id="pinErr" hidden></p>
+    <button class="btn btn--solid btn--wide" type="submit">Hyr</button>
+    <a class="lock__back" href="../">← Kthehu te dyqani</a>
+  </form>
+</section>
+
+<!-- ============ APP ============ -->
+<div class="app" id="app" hidden>
+  <header class="bar">
+    <div class="bar__l">
+      <span class="bar__mark"></span>
+      <span class="bar__tag">Admin</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="overview" class="is-on">Paneli</button>
+      <button data-tab="products">Produktet</button>
+      <button data-tab="categories">Kategoritë</button>
+      <button data-tab="brands">Markat</button>
+      <button data-tab="settings">Cilësimet</button>
+    </nav>
+    <div class="bar__r">
+      <span class="pill" id="changes" hidden></span>
+      <button class="btn btn--solid" id="publishBtn" disabled>Publiko</button>
+      <button class="icon" id="themeBtn" title="Tema e çelët / e errët" aria-label="Ndrysho temën">◐</button>
+      <a class="icon" href="../" target="_blank" rel="noopener" title="Hap dyqanin" aria-label="Hap dyqanin">↗</a>
+      <button class="icon" id="lockBtn" title="Dil" aria-label="Dil">⏻</button>
+    </div>
+  </header>
+
+  <div class="notice" id="ghNotice" hidden>
+    <span>Ndryshimet ruhen vetëm në këtë pajisje derisa ta lidhësh panelin me GitHub. Pas lidhjes, “Publiko” i nxjerr live në faqe.</span>
+    <button class="btn btn--line btn--sm" data-open-connect>Lidhu tani</button>
+  </div>
+
+  <main class="main">
+    <!-- OVERVIEW -->
+    <section class="view" data-view="overview">
+      <div class="stats" id="stats"></div>
+      <div class="cols">
+        <div class="panel">
+          <h2>Sipas kategorisë</h2>
+          <ul class="bars" id="catBars"></ul>
+        </div>
+        <div class="panel">
+          <h2>Veprime të shpejta</h2>
+          <div class="quick">
+            <button class="btn btn--solid" data-quick="add">+ Shto produkt</button>
+            <button class="btn btn--line" data-quick="out">Shiko produktet jashtë stokut</button>
+            <button class="btn btn--line" data-quick="cat">Shto kategori</button>
+            <a class="btn btn--line" href="https://mail.google.com/mail/u/0/#search/Porosi+e+re" target="_blank" rel="noopener">Porositë (në email)</a>
+          </div>
+          <p class="muted small">Porositë nga faqja vijnë direkt në email-in e dyqanit, me titullin “Porosi e re MIST-…”.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Shtuar së fundmi</h2>
+        <div class="mini" id="recent"></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="view" data-view="products" hidden>
+      <div class="ptools">
+        <input class="inp" id="pSearch" type="search" placeholder="Kërko emër ose markë…">
+        <select class="inp" id="pCat"></select>
+        <select class="inp" id="pBrand"></select>
+        <select class="inp" id="pStock">
+          <option value="">Stoku: të gjitha</option>
+          <option value="1">Në stok</option>
+          <option value="0">Jashtë stokut</option>
+          <option value="chg">Vetëm të ndryshuarat</option>
+        </select>
+        <select class="inp" id="pSort">
+          <option value="">Renditja e dyqanit</option>
+          <option value="az">Emri A–Z</option>
+          <option value="low">Çmimi ↑</option>
+          <option value="high">Çmimi ↓</option>
+        </select>
+        <button class="btn btn--solid" id="addBtn">+ Shto produkt</button>
+      </div>
+
+      <div class="bulk" id="bulk" hidden>
+        <b id="bulkN">0 të zgjedhura</b>
+        <select class="inp inp--sm" id="bulkCat"></select>
+        <button class="btn btn--line btn--sm" data-bulk="in">Në stok</button>
+        <button class="btn btn--line btn--sm" data-bulk="out">Jashtë stokut</button>
+        <span class="bulk__pct">
+          <input class="inp inp--sm" id="bulkPct" type="number" step="1" placeholder="%">
+          <button class="btn btn--line btn--sm" data-bulk="pct" title="p.sh. -10 ul çmimin 10%, 5 e rrit 5%">Ndrysho çmimin</button>
+        </span>
+        <button class="btn btn--danger btn--sm" data-bulk="del">Fshi</button>
+        <button class="link" data-bulk="clear">Hiq zgjedhjen</button>
+      </div>
+
+      <div class="thead">
+        <label class="check"><input type="checkbox" id="selAll"><span></span></label>
+        <span></span><span>Produkti</span><span>Kategoria</span><span>Çmimi €</span><span>Para zbritjes €</span><span>Stoku</span><span></span>
+      </div>
+      <div class="rows" id="rows"></div>
+      <p class="muted center" id="pCount"></p>
+      <div class="center"><button class="btn btn--line" id="pMore" hidden>Shfaq më shumë</button></div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="view" data-view="categories" hidden>
+      <div class="panel">
+        <h2>Kategoritë</h2>
+        <p class="muted small">Kategoritë shfaqen si butona mbi produktet në dyqan, në këtë renditje. Kategoritë pa asnjë produkt nuk shfaqen.</p>
+        <ul class="clist" id="cList"></ul>
+        <form class="addrow" id="cAdd">
+          <input class="inp" id="cName" placeholder="Emri i kategorisë së re, p.sh. Set dhuratash" required>
+          <button class="btn btn--solid" type="submit">Shto kategori</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- BRANDS -->
+    <section class="view" data-view="brands" hidden>
+      <div class="panel">
+        <h2>Markat</h2>
+        <p class="muted small">Ndrysho emrin e një marke dhe ndryshon te të gjitha produktet e saj. Nëse shkruan emrin e një marke tjetër, ato bashkohen.</p>
+        <input class="inp" id="bSearch" type="search" placeholder="Kërko markë…">
+        <ul class="blist" id="bList"></ul>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" data-view="settings" hidden>
+      <div class="cols">
+        <form class="panel" id="sForm">
+          <h2>Kontakti i dyqanit</h2>
+          <label class="f"><span>Telefoni (shfaqet nëse porosia s’dërgohet)</span><input class="inp" name="phone" placeholder="+383…"></label>
+          <label class="f"><span>Instagram (pa @)</span><input class="inp" name="instagram"></label>
+          <label class="f"><span>Messenger (ID ose emri i faqes)</span><input class="inp" name="messenger"></label>
+        </form>
+        <form class="panel" id="pinForm">
+          <h2>Kodi i hyrjes</h2>
+          <label class="f"><span>Kodi i ri</span><input class="inp" name="a" type="password" inputmode="numeric" minlength="4" required></label>
+          <label class="f"><span>Përsërite</span><input class="inp" name="b" type="password" inputmode="numeric" minlength="4" required></label>
+          <button class="btn btn--line" type="submit">Ndrysho kodin</button>
+          <p class="muted small">Kodi i ri vlen pasi ta publikosh.</p>
+        </form>
+      </div>
+      <div class="cols">
+        <div class="panel">
+          <h2>Lidhja me GitHub</h2>
+          <p id="ghStatus" class="small"></p>
+          <div class="quick">
+            <button class="btn btn--line" data-open-connect>Lidh / ndrysho tokenin</button>
+            <button class="btn btn--line" id="ghOff">Shkëput këtë pajisje</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Rezervë</h2>
+          <div class="quick">
+            <button class="btn btn--line" id="dlBtn">Shkarko katalogun (.json)</button>
+            <button class="btn btn--danger" id="discardBtn">Anulo të gjitha ndryshimet e papublikuara</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ PRODUCT MODAL ============ -->
+<div class="modal" id="pModal" hidden>
+  <form class="modal__card" id="pForm" novalidate>
+    <div class="modal__head"><h2 id="pTitle">Produkt</h2><button type="button" class="icon" data-dismiss aria-label="Mbyll">✕</button></div>
+    <div class="pgrid">
+      <div class="pimg">
+        <div class="pimg__box"><img id="pImg" alt=""></div>
+        <label class="btn btn--line btn--wide">Ngarko foto<input type="file" id="pFile" accept="image/*" hidden></label>
+        <p class="muted small">Më së miri: PNG pa sfond. Fotoja zvogëlohet automatikisht.</p>
+      </div>
+      <div class="pfields">
+        <label class="f"><span>Marka *</span><input class="inp" name="b" list="brandList" required></label>
+        <label class="f"><span>Emri *</span><input class="inp" name="n" required></label>
+        <div class="row2">
+          <label class="f"><span>Madhësia</span><input class="inp" name="s" list="sizeList" placeholder="100 ML"></label>
+          <label class="f"><span>Lloji</span><input class="inp" name="c" list="typeList" placeholder="EDP"></label>
+        </div>
+        <div class="row2">
+          <label class="f"><span>Çmimi € *</span><input class="inp" name="p" inputmode="decimal" required></label>
+          <label class="f"><span>Çmimi para zbritjes €</span><input class="inp" name="o" inputmode="decimal" placeholder="bosh = pa zbritje"></label>
+        </div>
+        <label class="f"><span>Kategoria *</span><select class="inp" name="g" id="pFormCat" required></select></label>
+        <label class="check"><input type="checkbox" name="a"> <span>Në stok (mund të porositet)</span></label>
+      </div>
+    </div>
+    <p class="form__err" id="pErr" hidden></p>
+    <div class="modal__foot">
+      <button type="button" class="btn btn--danger" id="pDel">Fshi produktin</button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn--line" data-dismiss>Anulo</button>
+      <button type="submit" class="btn btn--solid">Ruaj</button>
+    </div>
+  </form>
+</div>
+
+<!-- ============ CONNECT MODAL ============ -->
+<div class="modal" id="cModal" hidden>
+  <form class="modal__card modal__card--narrow" id="tokForm">
+    <div class="modal__head"><h2>Lidhu me GitHub</h2><button type="button" class="icon" data-dismiss aria-label="Mbyll">✕</button></div>
+    <p class="small">Faqja ruhet në GitHub. Që paneli të publikojë ndryshimet, i duhet një “token” që e krijon vetë një herë. Ai ruhet vetëm në këtë pajisje.</p>
+    <ol class="steps small">
+      <li>Hap <a id="tokLink" target="_blank" rel="noopener">krijimin e tokenit në GitHub ↗</a> (hyr me llogarinë e GitHub).</li>
+      <li>Te <b>Repository access</b> zgjidh <b>Only select repositories</b> → <b>mist-fragrancehouse</b>.</li>
+      <li>Te <b>Permissions</b> → <b>Contents</b> zgjidh <b>Read and write</b> (nëse s’është zgjedhur).</li>
+      <li>Shtyp <b>Generate token</b>, kopjoje dhe ngjite këtu poshtë.</li>
+    </ol>
+    <label class="f"><span>Tokeni</span><input class="inp mono" id="tok" placeholder="github_pat_…" autocomplete="off" spellcheck="false" required></label>
+    <p class="form__err" id="tokErr" hidden></p>
+    <div class="modal__foot"><span class="grow"></span><button type="button" class="btn btn--line" data-dismiss>Më vonë</button><button class="btn btn--solid" type="submit" id="tokBtn">Lidhu</button></div>
+  </form>
+</div>
+
+<!-- ============ CONFIRM ============ -->
+<div class="modal" id="qModal" hidden>
+  <div class="modal__card modal__card--narrow">
+    <h2 id="qTitle"></h2>
+    <div id="qBody" class="small"></div>
+    <div class="modal__foot"><span class="grow"></span><button class="btn btn--line" id="qNo">Anulo</button><button class="btn btn--solid" id="qYes">Po</button></div>
+  </div>
+</div>
+
+<datalist id="brandList"></datalist>
+<datalist id="sizeList"><option>30 ML</option><option>50 ML</option><option>75 ML</option><option>90 ML</option><option>100 ML</option><option>125 ML</option><option>150 ML</option><option>200 ML</option></datalist>
+<datalist id="typeList"><option>EDP</option><option>EDT</option><option>Parfum</option><option>Extrait</option><option>EDC</option><option>Body Mist</option></datalist>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="admin.js?v=1"></script>
+</body>
+</html>

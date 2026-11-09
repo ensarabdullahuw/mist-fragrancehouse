@@ -1,14 +1,19 @@
-(() => {
-  // Admin overrides: apply before anything renders
+(async () => {
+  // The catalogue lives in data/catalog.json (edited from /admin). no-cache = always revalidate,
+  // so changes published from the admin show up as soon as the site redeploys.
+  let DATA;
   try {
-    const ap = localStorage.getItem('mist_admin_products');
-    if (ap) window.MIST_PRODUCTS = JSON.parse(ap);
-    const ac = localStorage.getItem('mist_admin_config');
-    if (ac) Object.assign(window.MIST_CONFIG, JSON.parse(ac));
-  } catch(e) {}
-
+    const r = await fetch("data/catalog.json", { cache: "no-cache" });
+    if (!r.ok) throw new Error(r.status);
+    DATA = await r.json();
+  } catch (e) {
+    document.getElementById("grid").innerHTML = '<p class="none">Katalogu nuk u ngarkua. Rifresko faqen.</p>';
+    return;
+  }
   const CFG = window.MIST_CONFIG;
-  const ALL = window.MIST_PRODUCTS.map(p => ({
+  Object.entries(DATA.settings || {}).forEach(([k, v]) => { if (v) CFG[k] = v; });
+  const CATS = DATA.categories || [];
+  const ALL = DATA.products.map(p => ({
     ...p,
     off: p.o ? Math.round((1 - p.p / p.o) * 100) : 0,
     q: (p.b + " " + p.n).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""),
@@ -18,7 +23,7 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const money = n => n.toFixed(2) + " " + CFG.currency;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const img = p => `img/p/${p.id}.avif`;
+  const img = p => p.i || `img/p/${p.id}.avif`;
   const sizeLine = p => [p.s, p.c].filter(Boolean).join(" · ");
 
   const CITIES = ["Prishtinë","Prizren","Pejë","Gjakovë","Ferizaj","Gjilan","Mitrovicë","Podujevë","Vushtrri","Suharekë","Rahovec","Drenas","Lipjan","Malishevë","Kamenicë","Viti","Deçan","Istog","Klinë","Skenderaj","Dragash","Fushë Kosovë","Kaçanik","Shtime","Obiliq","Novobërdë","Junik","Mamushë","Hani i Elezit","Graçanicë","Shtërpcë"];
@@ -114,6 +119,9 @@
   }
   const reset = () => { state.shown = CFG.pageSize; render(); };
 
+  const used = new Set(ALL.map(p => p.g));
+  $(".chips").insertAdjacentHTML("beforeend", CATS.filter(c => used.has(c.id))
+    .map(c => `<button class="chip" data-g="${esc(c.id)}" role="tab" aria-selected="false">${esc(c.name)}</button>`).join(""));
   $$(".chip").forEach(c => c.addEventListener("click", () => {
     $$(".chip").forEach(x => { x.classList.toggle("is-on", x === c); x.setAttribute("aria-selected", x === c); });
     state.g = c.dataset.g; reset();
