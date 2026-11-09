@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="admin.css?v=1">
+<link rel="stylesheet" href="admin.css?v=2">
 </head>
 <body>
 
@@ -81,6 +81,11 @@
         </div>
       </div>
       <div class="panel">
+        <div class="panel__head"><h2>★ Më të shiturat</h2><button class="btn btn--line btn--sm" id="bestAdd">+ Shto</button></div>
+        <p class="muted small">Shfaqen në krye të dyqanit, në këtë renditje. Ndrysho renditjen me ▲▼, hiqi me ✕, shtoji me ☆ te “Produktet”.</p>
+        <ul class="clist bestlist" id="bestList"></ul>
+      </div>
+      <div class="panel">
         <h2>Shtuar së fundmi</h2>
         <div class="mini" id="recent"></div>
       </div>
@@ -96,6 +101,7 @@
           <option value="">Stoku: të gjitha</option>
           <option value="1">Në stok</option>
           <option value="0">Jashtë stokut</option>
+          <option value="best">★ Më të shiturat</option>
           <option value="chg">Vetëm të ndryshuarat</option>
         </select>
         <select class="inp" id="pSort">
@@ -212,6 +218,7 @@
         </div>
         <label class="f"><span>Kategoria *</span><select class="inp" name="g" id="pFormCat" required></select></label>
         <label class="check"><input type="checkbox" name="a"> <span>Në stok (mund të porositet)</span></label>
+        <label class="check" style="margin-top:8px"><input type="checkbox" name="best"> <span>★ Shfaqe te “Më të shiturat”</span></label>
       </div>
     </div>
     <p class="form__err" id="pErr" hidden></p>
@@ -255,6 +262,6 @@
 <datalist id="typeList"><option>EDP</option><option>EDT</option><option>Parfum</option><option>Extrait</option><option>EDC</option><option>Body Mist</option></datalist>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="admin.js?v=2"></script>
+<script src="admin.js?v=3"></script>
 </body>
 </html>

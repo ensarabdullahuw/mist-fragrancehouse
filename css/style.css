@@ -338,6 +338,22 @@ h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-hei
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* ---------- best sellers ---------- */
+.best{padding:0 0 clamp(36px,5vw,64px)}
+.best__head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:0 var(--pad);margin-bottom:18px}
+.best h2{font-size:clamp(34px,4.6vw,56px);margin-top:10px}
+.best__nav{display:flex;gap:8px}
+.best__nav .icon-btn{font-size:24px;line-height:1;padding-bottom:3px}
+.best__nav .icon-btn:hover:not(:disabled){border-color:var(--ink)}
+.best__nav .icon-btn:disabled{opacity:.3;cursor:default}
+.best__track{
+  display:grid;grid-auto-flow:column;grid-auto-columns:clamp(230px,22vw,280px);gap:clamp(12px,1.6vw,22px);
+  overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 var(--pad);padding:4px var(--pad) 14px;
+  scrollbar-width:none;overscroll-behavior-x:contain;
+}
+.best__track::-webkit-scrollbar{display:none}
+.best__track .card{scroll-snap-align:start;content-visibility:visible;contain-intrinsic-size:none}
+
 /* ---------- responsive ---------- */
 @media (max-width: 860px){
   .toolbar__right{width:100%}
@@ -357,6 +373,13 @@ h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-hei
   .intro{padding:34px 16px 22px}
   .intro__lead{font-size:15px}
   .shop{padding:0 16px 60px}
+  .best__head{padding:0 16px}
+  .best__nav{display:none}
+  .best__track{grid-auto-columns:58vw;gap:10px;padding:4px 16px 12px;scroll-padding:0 16px}
+  .best__track .card__body{padding:4px 12px 12px}
+  .best__track .card__name{font-size:18px}
+  .best__track .price b{font-size:16px}
+  .best__track .add{width:34px;height:34px}
   .grid[data-size="lg"]{grid-template-columns:repeat(2,1fr);gap:10px}
   .grid[data-size="sm"]{grid-template-columns:repeat(3,1fr);gap:8px}
   .grid[data-size="lg"] .card__body{padding:4px 12px 12px}

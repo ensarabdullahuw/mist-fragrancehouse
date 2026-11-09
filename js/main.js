@@ -177,7 +177,26 @@
     $("#formTotal").textContent = money(total());
   }
 
-  grid.addEventListener("click", e => {
+  /* ---------- best sellers (order set in data/catalog.json → "bestsellers", editable in /admin) ---------- */
+  const bestTrack = $("#bestTrack");
+  const best = (DATA.bestsellers || []).map(id => byId[id]).filter(p => p && p.a);
+  if (best.length) {
+    bestTrack.innerHTML = best.map(card).join("");
+    $("#me-te-shiturat").hidden = false;
+    $$(".best__nav [data-scroll]").forEach(b => b.addEventListener("click", () => {
+      const c = $(".card", bestTrack);
+      bestTrack.scrollBy({ left: +b.dataset.scroll * (c ? c.offsetWidth + 16 : 260) * 2, behavior: "smooth" });
+    }));
+    const navState = () => {
+      const [prev, next] = $$(".best__nav [data-scroll]");
+      prev.disabled = bestTrack.scrollLeft < 4;
+      next.disabled = bestTrack.scrollLeft + bestTrack.clientWidth > bestTrack.scrollWidth - 4;
+    };
+    bestTrack.addEventListener("scroll", navState, { passive: true });
+    addEventListener("resize", navState); navState();
+  }
+
+  const onAdd = e => {
     const btn = e.target.closest("[data-add]");
     if (!btn || btn.disabled) return;
     const id = btn.dataset.add;
@@ -186,7 +205,9 @@
     const b = $("#bagCount"); b.classList.add("bump"); setTimeout(() => b.classList.remove("bump"), 220);
     btn.classList.add("is-added"); setTimeout(() => btn.classList.remove("is-added"), 1200);
     toast(`${byId[id].n} u shtua në shportë`);
-  });
+  };
+  grid.addEventListener("click", onAdd);
+  bestTrack.addEventListener("click", onAdd);
 
   $("#bagList").addEventListener("click", e => {
     const t = e.target.closest("button"); if (!t) return;

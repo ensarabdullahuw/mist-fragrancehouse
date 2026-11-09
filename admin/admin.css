@@ -122,7 +122,7 @@ select.inp{padding-right:28px;appearance:none;-webkit-appearance:none;
 .bulk .btn--danger{color:#FFB4A8;border-color:#FFB4A8}
 .bulk__pct{display:inline-flex;gap:6px}
 .bulk__pct .inp{width:72px}
-.thead,.row{display:grid;grid-template-columns:28px 56px minmax(0,2.4fr) minmax(110px,1fr) 96px 110px 70px 80px;gap:10px;align-items:center}
+.thead,.row{display:grid;grid-template-columns:28px 56px minmax(0,2.4fr) minmax(110px,1fr) 96px 110px 70px 104px;gap:10px;align-items:center}
 .thead{padding:0 12px 6px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
 .rows{display:flex;flex-direction:column;gap:6px}
 .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;position:relative}
@@ -156,6 +156,15 @@ select.inp{padding-right:28px;appearance:none;-webkit-appearance:none;
 .clist .ord button:hover{color:var(--ink)}
 .clist .ord button:disabled{opacity:.25;cursor:default}
 .count{font-size:12px;color:var(--ink-3);white-space:nowrap}
+.panel__head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.panel__head h2{margin:0}
+.clist.bestlist li{grid-template-columns:auto 44px minmax(0,1fr) auto}
+.bestlist img{width:44px;height:44px;object-fit:contain;background:var(--tile);border-radius:8px}
+.bl__name{font:500 16px/1.2 var(--serif);min-width:0}
+.bl__name small{display:block;font:400 10.5px/1.4 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.bl__name em{font:400 12px var(--sans)}
+.row__act .icon.star{color:var(--ink-3);font-size:17px}
+.row__act .icon.star.on{color:var(--accent)}
 .addrow{display:flex;gap:8px}
 #bSearch{margin-top:6px}
 

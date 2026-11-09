@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
 
@@ -66,6 +66,21 @@
   </section>
 
   <!-- ============ SHOP ============ -->
+  <!-- ============ BEST SELLERS ============ -->
+  <section class="best" id="me-te-shiturat" hidden>
+    <div class="best__head">
+      <div>
+        <p class="eyebrow"><span class="star">✦</span> Aromat më virale</p>
+        <h2>Më të <em>shiturat</em></h2>
+      </div>
+      <div class="best__nav">
+        <button class="icon-btn" data-scroll="-1" aria-label="Më parë">‹</button>
+        <button class="icon-btn" data-scroll="1" aria-label="Më pas">›</button>
+      </div>
+    </div>
+    <div class="best__track" id="bestTrack"></div>
+  </section>
+
   <section class="shop" id="koleksioni">
     <div class="toolbar">
       <div class="chips" role="tablist" aria-label="Kategoria">
@@ -179,6 +194,6 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="js/config.js?v=6"></script>
-<script src="js/main.js?v=6"></script>
+<script src="js/main.js?v=7"></script>
 </body>
 </html>

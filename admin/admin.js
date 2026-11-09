@@ -118,7 +118,7 @@
   const canon = p => { const o = {}; KEYS.forEach(k => { if (p[k] !== undefined) o[k] = p[k]; }); Object.keys(p).forEach(k => { if (!(k in o)) o[k] = p[k]; }); return o; };
   const pj = p => JSON.stringify(canon(p));
   function serialize(d) {
-    const head = { v: 1, updated: d.updated, categories: d.categories, settings: d.settings };
+    const head = { v: 1, updated: d.updated, categories: d.categories, bestsellers: d.bestsellers || [], settings: d.settings };
     return "{\n" + Object.entries(head).map(([k, v]) => `"${k}":${JSON.stringify(v)}`).join(",\n") +
       ',\n"products":[\n' + d.products.map(pj).join(",\n") + "\n]}\n";
   }
@@ -140,7 +140,8 @@
     o.products.forEach(p => { if (!ids.has(p.id)) del++; });
     const cats = JSON.stringify(o.categories) !== JSON.stringify(D.categories);
     const sets = JSON.stringify(o.settings) !== JSON.stringify(D.settings);
-    return { add, edit, del, cats, sets, pin: !!newPin, n: add + edit + del + (cats ? 1 : 0) + (sets ? 1 : 0) + (newPin ? 1 : 0) };
+    const best = JSON.stringify(o.bestsellers || []) !== JSON.stringify(D.bestsellers || []);
+    return { add, edit, del, cats, sets, best, pin: !!newPin, n: add + edit + del + (cats ? 1 : 0) + (sets ? 1 : 0) + (best ? 1 : 0) + (newPin ? 1 : 0) };
   }
 
   let saveT;
@@ -182,6 +183,7 @@
         else ls.del("mist_admin_draft");
       } catch { ls.del("mist_admin_draft"); }
     }
+    D.bestsellers = D.bestsellers || [];
     ghUI(); fillSelects(); dirty(); showTab(location.hash.slice(1) || "overview");
   }
 
@@ -202,6 +204,11 @@
   const brandsOf = () => [...new Set(D.products.map(p => p.b))].sort((a, b) => a.localeCompare(b));
   const imgSrc = p => p.i ? (newImgs[p.i] || shownImgs[p.i] || "../" + p.i) : `../img/p/${p.id}.avif`;
   const off = p => p.o && p.o > p.p ? Math.round((1 - p.p / p.o) * 100) : 0;
+  const isBest = id => (D.bestsellers || []).includes(id);
+  function setBest(id, on) {
+    D.bestsellers = (D.bestsellers || []).filter(x => x !== id);
+    if (on) D.bestsellers.push(id);
+  }
   const catOptions = (sel, extra = "") => extra + D.categories.map(c => `<option value="${esc(c.id)}" ${c.id === sel ? "selected" : ""}>${esc(c.name)}</option>`).join("");
 
   function fillSelects() {
@@ -224,8 +231,25 @@
       const n = P.filter(p => p.g === c.id).length;
       return `<li><span>${esc(c.name)}</span><i style="--w:${(n / max * 100).toFixed(1)}%"></i><em>${n}</em></li>`;
     }).join("") || `<li class="muted">Asnjë kategori</li>`;
+    const B = D.bestsellers.map(id => P.find(p => p.id === id)).filter(Boolean);
+    $("#bestList").innerHTML = B.map((p, i) => `<li data-id="${esc(p.id)}">
+        <span class="ord"><button data-up ${i ? "" : "disabled"} aria-label="Lart">▲</button><button data-down ${i < B.length - 1 ? "" : "disabled"} aria-label="Poshtë">▼</button></span>
+        <img src="${esc(imgSrc(p))}" alt="" loading="lazy">
+        <span class="bl__name"><small>${i + 1}. ${esc(p.b)}</small>${esc(p.n)}${p.a ? "" : ` <em class="muted">(jashtë stokut — s’shfaqet)</em>`}</span>
+        <button class="icon del" data-rm title="Hiqe nga Më të shiturat" aria-label="Hiqe">✕</button>
+      </li>`).join("") || `<li class="muted">Asnjë produkt. Shtoji me ☆ te “Produktet”.</li>`;
     $("#recent").innerHTML = P.slice(0, 8).map(p => `<button data-edit="${esc(p.id)}"><img src="${esc(imgSrc(p))}" alt="" loading="lazy"><small>${esc(p.b)}</small><span>${esc(p.n)}</span></button>`).join("");
   }
+  $("#bestList").addEventListener("click", e => {
+    const li = e.target.closest("li[data-id]"); if (!li) return;
+    const B = D.bestsellers, i = B.indexOf(li.dataset.id);
+    if (e.target.closest("[data-up]") && i > 0) [B[i - 1], B[i]] = [B[i], B[i - 1]];
+    else if (e.target.closest("[data-down]") && i < B.length - 1) [B[i + 1], B[i]] = [B[i], B[i + 1]];
+    else if (e.target.closest("[data-rm]")) B.splice(i, 1);
+    else return;
+    renderOverview(); dirty();
+  });
+  $("#bestAdd").addEventListener("click", () => { ui.stock = ""; $("#pStock").value = ""; showTab("products"); toast("Shtyp ☆ te produkti që do ta shtosh te Më të shiturat"); });
   $("#recent").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if (b) openEdit(b.dataset.edit); });
   $$("[data-quick]").forEach(b => b.addEventListener("click", () => {
     const q = b.dataset.quick;
@@ -242,6 +266,7 @@
       if (ui.brand && p.b !== ui.brand) return false;
       if (ui.stock === "1" && !p.a) return false;
       if (ui.stock === "0" && p.a) return false;
+      if (ui.stock === "best" && !isBest(p.id)) return false;
       if (ui.stock === "chg" && !isChanged(p)) return false;
       if (words.length) {
         const h = (p.b + " " + p.n + " " + (p.s || "") + " " + (p.c || "")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -252,6 +277,7 @@
     if (ui.sort === "az") L = L.slice().sort((a, b) => (a.b + a.n).localeCompare(b.b + b.n));
     if (ui.sort === "low") L = L.slice().sort((a, b) => a.p - b.p);
     if (ui.sort === "high") L = L.slice().sort((a, b) => b.p - a.p);
+    if (ui.stock === "best" && !ui.sort) L = L.slice().sort((a, b) => D.bestsellers.indexOf(a.id) - D.bestsellers.indexOf(b.id));
     return L;
   }
   const row = p => {
@@ -264,7 +290,7 @@
       <div data-l="Çmimi €"><input class="inp" data-f="p" inputmode="decimal" value="${p.p}"></div>
       <div data-l="Para zbritjes €"><input class="inp" data-f="o" inputmode="decimal" value="${p.o || ""}" placeholder="—">${o ? `<span class="row__off">−${o}%</span>` : ""}</div>
       <div data-l="${p.a ? "Në stok" : "Jashtë stokut"}"><button class="sw ${p.a ? "on" : ""}" data-f="a" aria-label="Në stok" title="${p.a ? "Në stok" : "Jashtë stokut"}"></button></div>
-      <div class="row__act"><button class="icon" data-open title="Ndrysho" aria-label="Ndrysho">✎</button><button class="icon del" data-del title="Fshi" aria-label="Fshi">🗑</button></div>
+      <div class="row__act"><button class="icon star ${isBest(p.id) ? "on" : ""}" data-best title="${isBest(p.id) ? "Hiqe nga Më të shiturat" : "Shtoje te Më të shiturat"}" aria-label="Më të shiturat">${isBest(p.id) ? "★" : "☆"}</button><button class="icon" data-open title="Ndrysho" aria-label="Ndrysho">✎</button><button class="icon del" data-del title="Fshi" aria-label="Fshi">🗑</button></div>
     </div>`;
   };
   function renderProducts() {
@@ -312,6 +338,10 @@
     const id = r.dataset.id, p = byId(id);
     if (e.target.closest("[data-sel]")) { e.target.checked ? ui.sel.add(id) : ui.sel.delete(id); bulkUI(); return; }
     if (e.target.closest('[data-f="a"]')) { p.a = p.a ? 0 : 1; refreshRow(id); return; }
+    if (e.target.closest("[data-best]")) {
+      const on = !isBest(id); setBest(id, on); refreshRow(id);
+      toast(on ? `${p.n} u shtua te Më të shiturat (nr. ${D.bestsellers.length})` : `${p.n} u hoq nga Më të shiturat`); return;
+    }
     if (e.target.closest("[data-del]")) { if (await ask("Fshi produktin?", `<b>${esc(p.b)} – ${esc(p.n)}</b> do të hiqet nga dyqani pasi ta publikosh.`, "Fshi", true)) { removeProducts([id]); } return; }
     if (e.target.closest("[data-open]")) openEdit(id);
   });
@@ -329,6 +359,7 @@
   function removeProducts(ids) {
     const s = new Set(ids);
     D.products = D.products.filter(p => !s.has(p.id));
+    D.bestsellers = (D.bestsellers || []).filter(id => !s.has(id));
     ids.forEach(id => ui.sel.delete(id));
     fillSelects(); renderProducts(); dirty();
     toast(ids.length === 1 ? "Produkti u fshi (publiko për ta hequr nga faqja)" : `${ids.length} produkte u fshinë`);
@@ -367,7 +398,7 @@
     $("#pTitle").textContent = id ? "Ndrysho produktin" : "Produkt i ri";
     $("#pFormCat").innerHTML = catOptions(p.g);
     pf.b.value = p.b; pf.n.value = p.n; pf.s.value = p.s || ""; pf.c.value = p.c || "";
-    pf.p.value = p.p || ""; pf.o.value = p.o || ""; pf.a.checked = !!p.a;
+    pf.p.value = p.p || ""; pf.o.value = p.o || ""; pf.a.checked = !!p.a; pf.best.checked = !!id && isBest(id);
     const im = $("#pImg");
     if (id) { im.src = imgSrc(p); im.hidden = false; } else { im.removeAttribute("src"); im.hidden = true; }
     $("#pDel").hidden = !id; $("#pErr").hidden = true; $("#pFile").value = "";
@@ -418,6 +449,7 @@
     Object.assign(p, { b: v.b, n: v.n, s: v.s, c: v.c, p: v.p, g: v.g, a: v.a });
     if (v.o > 0) p.o = v.o; else delete p.o;
     if (!p.d) p.d = today();
+    if (pf.best.checked !== isBest(p.id)) setBest(p.id, pf.best.checked);
     if (pendingImg) {
       if (p.i && newImgs[p.i]) delete newImgs[p.i];
       p.i = `img/u/${p.id}-${Date.now().toString(36)}.${pendingImg.ext}`;
@@ -531,7 +563,7 @@
   $("#discardBtn").addEventListener("click", async () => {
     if (!changes().n) { toast("S’ka ndryshime të papublikuara"); return; }
     if (!await ask("Anulo ndryshimet?", "Të gjitha ndryshimet që s’janë publikuar do të humbin.", "Anuloji", true)) return;
-    D = JSON.parse(ORIG); newPin = null; Object.keys(newImgs).forEach(k => delete newImgs[k]);
+    D = JSON.parse(ORIG); D.bestsellers = D.bestsellers || []; newPin = null; Object.keys(newImgs).forEach(k => delete newImgs[k]);
     ls.del("mist_admin_draft"); fillSelects(); dirty(); showTab(ui.tab); toast("Ndryshimet u anuluan");
   });
 
@@ -578,7 +610,7 @@
     if (publishing) return;
     const c = changes(); if (!c.n) return;
     if (!token) { openConnect(); return; }
-    const parts = [c.add && `${c.add} të shtuara`, c.edit && `${c.edit} të ndryshuara`, c.del && `${c.del} të fshira`, c.cats && "kategoritë", c.sets && "cilësimet", c.pin && "kodi i hyrjes"].filter(Boolean);
+    const parts = [c.add && `${c.add} të shtuara`, c.edit && `${c.edit} të ndryshuara`, c.del && `${c.del} të fshira`, c.cats && "kategoritë", c.best && "më të shiturat", c.sets && "cilësimet", c.pin && "kodi i hyrjes"].filter(Boolean);
     if (!await ask("Publiko ndryshimet?", `Produkte: ${parts.join(", ")}.<br>Faqja përditësohet pas rreth 1 minute.`, "Publiko")) return;
 
     publishing = true; const btn = $("#publishBtn"); btn.classList.add("is-busy"); btn.textContent = "Duke publikuar…";
@@ -617,7 +649,7 @@
 
       // 3. this is now the published state
       setOrig(text);
-      D = JSON.parse(text);
+      D = JSON.parse(text); D.bestsellers = D.bestsellers || [];
       Object.keys(newImgs).forEach(k => { shownImgs[k] = newImgs[k]; delete newImgs[k]; });
       if (newPin) { pinHash = newPin; ss.set("mist_admin", pinHash); if (ls.get("mist_admin")) ls.set("mist_admin", pinHash); }
       newPin = null;
