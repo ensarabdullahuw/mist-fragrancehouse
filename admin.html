@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mist Admin</title>
+<link rel="icon" href="img/monogram.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0812;--surface:#12101e;--surface2:#1a1728;--border:rgba(255,255,255,0.08);
+  --text:#f5f0e8;--text2:rgba(245,240,232,0.55);--text3:rgba(245,240,232,0.3);
+  --gold:#c9a26a;--gold2:#a67c45;--red:#e57373;--green:#81c784;--blue:#64b5f6;
+  --radius:10px;--sidebar:220px;
+}
+html,body{height:100%;font-family:'Jost',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+a{color:inherit;text-decoration:none}
+input,select,textarea,button{font-family:inherit;font-size:inherit}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.content{flex:1;overflow-y:auto;padding:28px}
+
+/* ── SIDEBAR ── */
+.brand{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.brand .name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;letter-spacing:0.06em}
+.brand .badge{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-top:2px}
+.nav{padding:12px 0;flex:1}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;
+  font-size:13px;color:var(--text2);border-left:3px solid transparent;
+  transition:all .15s;
+}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,162,106,0.06)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.logout-btn{
+  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3);
+  cursor:pointer;transition:color .15s;
+}
+.logout-btn:hover{color:var(--red)}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 28px;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+}
+.topbar h1{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:7px;border:none;cursor:pointer;
+  font-size:12px;letter-spacing:0.06em;font-weight:500;transition:all .15s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0812}
+.btn-primary:hover{opacity:.9}
+.btn-ghost{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+.btn-danger{background:rgba(229,115,115,0.12);border:1px solid rgba(229,115,115,0.25);color:var(--red)}
+.btn-danger:hover{background:rgba(229,115,115,0.2)}
+.btn-sm{padding:5px 11px;font-size:11px}
+
+/* ── CARDS / STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;
+}
+.stat-card .label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.stat-card .value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;color:var(--text)}
+.stat-card .sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-box{
+  flex:1;min-width:200px;padding:8px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  color:var(--text);outline:none;
+}
+.search-box:focus{border-color:rgba(201,162,106,0.4)}
+.search-box::placeholder{color:var(--text3)}
+select.filter{
+  padding:8px 12px;background:var(--surface);border:1px solid var(--border);
+  border-radius:7px;color:var(--text);outline:none;cursor:pointer;
+}
+
+/* ── TABLE ── */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{
+  padding:11px 14px;text-align:left;font-size:11px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text3);background:rgba(255,255,255,0.02);
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,0.025)}
+td{padding:10px 14px;vertical-align:middle}
+.td-brand{font-size:11px;color:var(--text3)}
+.td-name{font-weight:500;font-size:13px}
+.badge-g{
+  display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;
+}
+.badge-g.f{background:rgba(244,143,177,0.15);color:#f48fb1}
+.badge-g.m{background:rgba(100,181,246,0.15);color:#64b5f6}
+.badge-g.u{background:rgba(201,162,106,0.15);color:var(--gold)}
+.stock-dot{
+  display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;
+}
+.stock-dot.in{background:var(--green)}
+.stock-dot.out{background:var(--red)}
+.inline-price{
+  width:70px;padding:4px 8px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;color:var(--text);text-align:right;outline:none;
+}
+.inline-price:focus{border-color:var(--gold)}
+.action-cell{display:flex;gap:6px}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)}
+.pag-btn{
+  padding:4px 10px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:5px;cursor:pointer;color:var(--text2);transition:all .15s;
+}
+.pag-btn:hover:not(:disabled){background:rgba(255,255,255,0.08);color:var(--text)}
+.pag-btn:disabled{opacity:.35;cursor:default}
+.pag-btn.active{background:var(--gold);color:#0a0812;border-color:var(--gold)}
+
+/* ── MODAL ── */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);
+  z-index:100;align-items:center;justify-content:center;
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  padding:28px;position:relative;
+}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.form-control{
+  width:100%;padding:10px 13px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:7px;color:var(--text);outline:none;transition:border-color .15s;
+}
+.form-control:focus{border-color:rgba(201,162,106,0.5)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.close-modal{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1}
+.close-modal:hover{color:var(--text)}
+
+/* ── CONFIG SECTION ── */
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.config-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.config-card h3{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  padding:12px 20px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;font-size:13px;color:var(--text);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  transform:translateY(20px);opacity:0;pointer-events:none;
+  transition:all .25s;max-width:300px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(129,199,132,0.4);color:var(--green)}
+.toast.error{border-color:rgba(229,115,115,0.4);color:var(--red)}
+
+/* ── SECTION VISIBILITY ── */
+.section{display:none}
+.section.active{display:block}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:24px}
+.page-header h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;margin-bottom:4px}
+.page-header p{font-size:13px;color:var(--text2)}
+
+/* ── BULK ACTIONS ── */
+.bulk-bar{
+  display:none;align-items:center;gap:12px;padding:10px 16px;
+  background:rgba(201,162,106,0.1);border:1px solid rgba(201,162,106,0.3);
+  border-radius:8px;margin-bottom:12px;font-size:13px;
+}
+.bulk-bar.show{display:flex}
+.bulk-label{color:var(--gold);font-weight:500}
+
+/* ── EXPORT SECTION ── */
+.export-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;margin-bottom:20px;
+}
+.export-box h3{font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:8px}
+.export-box p{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6}
+
+@media(max-width:768px){
+  :root{--sidebar:0px}
+  .sidebar{position:fixed;left:-240px;width:240px;z-index:50;transition:left .2s}
+  .sidebar.open{left:0}
+  .content{padding:16px}
+  .config-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app" style="display:none">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="name">Mist</div>
+    <div class="badge">Admin Panel</div>
+  </div>
+  <div class="nav">
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showSection('products')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Produktet
+    </div>
+    <div class="nav-item" onclick="showSection('prices')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5a2.5 2.5 0 0 1 5 0c0 1.5-5 2.5-5 4a2.5 2.5 0 0 0 5 0"/></svg>
+      Çmimet
+    </div>
+    <div class="nav-item" onclick="showSection('config')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+      Konfigurim
+    </div>
+    <div class="nav-item" onclick="showSection('export')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Eksporto
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <a href="index.html" target="_blank" class="logout-btn" style="margin-bottom:12px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Shiko faqen
+    </a>
+    <div class="logout-btn" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Dil
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="pageTitle">Dashboard</h1>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="resetAll()" title="Reseto të gjitha ndryshimet">↺ Reseto</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAll()">💾 Ruaj ndryshimet</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="section active" id="sec-dashboard">
+      <div class="page-header">
+        <h2>Mirë se erdhët 👋</h2>
+        <p>Pasqyra e dyqanit Mist Fragrance House</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Gjithsej Produkte</div><div class="value" id="st-total">—</div></div>
+        <div class="stat-card"><div class="label">Marka</div><div class="value" id="st-brands">—</div></div>
+        <div class="stat-card"><div class="label">Në stok</div><div class="value" id="st-instock">—</div><div class="sub" id="st-outstock-sub"></div></div>
+        <div class="stat-card"><div class="label">Çmimi mesatar</div><div class="value" id="st-avgprice">—</div></div>
+        <div class="stat-card"><div class="label">Produkte femra</div><div class="value" id="st-fem">—</div></div>
+        <div class="stat-card"><div class="label">Produkte meshkuj</div><div class="value" id="st-mas">—</div></div>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:20px">
+        <table>
+          <thead><tr><th>Marka</th><th>Produktet</th><th>Çmimi min</th><th>Çmimi max</th></tr></thead>
+          <tbody id="brand-summary-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PRODUCTS ── -->
+    <div class="section" id="sec-products">
+      <div class="page-header">
+        <h2>Menaxhimi i Produkteve</h2>
+        <p>Shto, edito ose fshij produkte</p>
+      </div>
+      <div class="toolbar">
+        <input class="search-box" id="prod-search" placeholder="Kërko sipas emrit ose markës…" oninput="renderTable()">
+        <select class="filter" id="prod-brand" onchange="renderTable()"><option value="">Të gjitha markat</option></select>
+        <select class="filter" id="prod-gender" onchange="renderTable()">
+          <option value="">Të gjitha</option>
+          <option value="f">Femra</option>
+          <option value="m">Meshkuj</option>
+          <option value="u">Unisex</option>
+        </select>
+        <select class="filter" id="prod-stock" onchange="renderTable()">
+          <option value="">Stoku</option>
+          <option value="1">Në stok</option>
+          <option value="0">Jashtë stokut</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Produkt i ri</button>
+      </div>
+      <div class="bulk-bar" id="bulk-bar">
+        <span class="bulk-label" id="bulk-count">0 të zgjedhur</span>
+        <button class="btn btn-ghost btn-sm" onclick="bulkSetStock(1)">✓ Vendos në stok</button>
+        <button class="btn btn-ghost btn-sm" onclick="bulkSetStock(0)">✗ Hiq nga stoku</button>
+        <button class="btn btn-danger btn-sm" onclick="bulkDelete()">🗑 Fshij</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearSelection()">✕ Anulo</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)" style="cursor:pointer"></th>
+              <th onclick="sortBy('b')" style="cursor:pointer">Marka ↕</th>
+              <th onclick="sortBy('n')" style="cursor:pointer">Emri ↕</th>
+              <th>Madhësia</th>
+              <th>Lloji</th>
+              <th onclick="sortBy('g')" style="cursor:pointer">Gjinia ↕</th>
+              <th onclick="sortBy('p')" style="cursor:pointer">Çmimi ↕</th>
+              <th>Çmimi i vjetër</th>
+              <th onclick="sortBy('a')" style="cursor:pointer">Stoku ↕</th>
+              <th>Veprime</th>
+            </tr>
+          </thead>
+          <tbody id="prod-tbody"></tbody>
+        </table>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+
+    <!-- ── PRICES ── -->
+    <div class="section" id="sec-prices">
+      <div class="page-header">
+        <h2>Menaxhimi i Çmimeve</h2>
+        <p>Ndrysho çmimet me shumicë ose individualisht</p>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:20px">
+        <table>
+          <thead><tr><th>Marka</th><th>Emri</th><th>Madh.</th><th style="width:110px">Çmimi (€)</th><th style="width:110px">Çm. i vjetër (€)</th><th style="width:70px">Zbritja</th></tr></thead>
+          <tbody id="price-tbody"></tbody>
+        </table>
+      </div>
+      <div class="export-box">
+        <h3>Ndrysho të gjitha çmimet me %</h3>
+        <p>Zbrit ose rrit të gjitha çmimet aktuale me një përqindje të caktuar. Veprimet mund të anullohen me butonin "Reseto".</p>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="pct-val" placeholder="p.sh. -10" style="padding:9px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);width:120px;outline:none">
+          <select id="pct-filter" style="padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);outline:none">
+            <option value="">Të gjitha</option>
+            <option value="f">Vetëm femra</option>
+            <option value="m">Vetëm meshkuj</option>
+            <option value="u">Vetëm unisex</option>
+          </select>
+          <button class="btn btn-primary" onclick="applyPercentage()">Apliko %</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIG ── -->
+    <div class="section" id="sec-config">
+      <div class="page-header">
+        <h2>Konfigurim i Dyqanit</h2>
+        <p>Ndrysho të dhënat e dyqanit dhe rrjetet sociale</p>
+      </div>
+      <div class="config-grid" id="config-grid">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- ── EXPORT ── -->
+    <div class="section" id="sec-export">
+      <div class="page-header">
+        <h2>Eksporto të Dhënat</h2>
+        <p>Shkarko fajlat e azhurnuar për t'i ngarkuar në server</p>
+      </div>
+      <div class="export-box">
+        <h3>products.js</h3>
+        <p>Shkarko listën e produkteve si fajl JS. Ngarko atë mbi <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">js/products.js</code> në serverin tënd për të bërë ndryshimet permanente edhe pas pastrimit të cache-it.</p>
+        <button class="btn btn-primary" onclick="exportProducts()">⬇ Shkarko products.js</button>
+      </div>
+      <div class="export-box">
+        <h3>config.js</h3>
+        <p>Shkarko konfigurimet si fajl JS. Ngarko mbi <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">js/config.js</code> në serverin tënd.</p>
+        <button class="btn btn-primary" onclick="exportConfig()">⬇ Shkarko config.js</button>
+      </div>
+      <div class="export-box">
+        <h3>Importo products.js</h3>
+        <p>Ngarko një fajl products.js të ri për ta importuar direkt në admin pa prekur serverin.</p>
+        <input type="file" id="import-file" accept=".js" style="display:none" onchange="importProducts(this)">
+        <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">📂 Importo products.js</button>
+      </div>
+      <div class="export-box">
+        <h3>⚠️ Reseto të gjitha</h3>
+        <p>Fshij të gjitha ndryshimet e ruajtura në browser dhe kthehu te të dhënat origjinale nga fajlat statike.</p>
+        <button class="btn btn-danger" onclick="resetAll(true)">Reseto gjithçka</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- PRODUCT MODAL -->
+<div class="overlay" id="prod-modal">
+  <div class="modal">
+    <button class="close-modal" onclick="closeModal('prod-modal')">✕</button>
+    <h2 id="modal-title">Produkt i ri</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Marka (Brand)</label>
+        <input class="form-control" id="f-brand" placeholder="p.sh. Chanel">
+      </div>
+      <div class="form-group">
+        <label>Emri</label>
+        <input class="form-control" id="f-name" placeholder="p.sh. No. 5">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Madhësia</label>
+        <input class="form-control" id="f-size" placeholder="p.sh. 100 ML">
+      </div>
+      <div class="form-group">
+        <label>Koncentrimi</label>
+        <select class="form-control" id="f-conc">
+          <option value="EDP">EDP</option>
+          <option value="EDT">EDT</option>
+          <option value="EDC">EDC</option>
+          <option value="Parfum">Parfum</option>
+          <option value="Body Mist">Body Mist</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Çmimi (€)</label>
+        <input class="form-control" id="f-price" type="number" step="0.01" placeholder="34.99">
+      </div>
+      <div class="form-group">
+        <label>Çmimi i vjetër (€)</label>
+        <input class="form-control" id="f-oldprice" type="number" step="0.01" placeholder="70">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Gjinia</label>
+        <select class="form-control" id="f-gender">
+          <option value="u">Unisex</option>
+          <option value="f">Femra</option>
+          <option value="m">Meshkuj</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Stoku</label>
+        <select class="form-control" id="f-stock">
+          <option value="1">Në stok ✓</option>
+          <option value="0">Jashtë stokut ✗</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>ID (lëre bosh për auto-gjenerim)</label>
+      <input class="form-control" id="f-id" placeholder="auto">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('prod-modal')">Anulo</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Ruaj produktin</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── BOOTSTRAP ──────────────────────────────────────────────
+(function(){
+  try{if(localStorage.getItem('mist_admin_auth')!=='1'){location.replace('admin-login.html');return;}}catch(e){location.replace('admin-login.html');return;}
+
+  // Load products from static script then apply admin overrides
+  loadScripts().then(()=>{
+    init();
+    document.getElementById('app').style.display='flex';
+  });
+})();
+
+async function loadScripts(){
+  // Load window.MIST_CONFIG and window.MIST_PRODUCTS if not already present
+  if(!window.MIST_CONFIG){
+    await loadScript('js/config.js');
+  }
+  if(!window.MIST_PRODUCTS){
+    await loadScript('js/products.js');
+  }
+}
+
+function loadScript(src){
+  return new Promise((res)=>{
+    const s=document.createElement('script');s.src=src+'?v='+Date.now();
+    s.onload=res;s.onerror=res;document.head.appendChild(s);
+  });
+}
+
+// ── STATE ──────────────────────────────────────────────────
+let products=[];
+let cfg={};
+let editId=null;
+let sortKey='b';let sortDir=1;
+let page=1;const PER_PAGE=50;
+let selected=new Set();
+
+function init(){
+  // Apply saved overrides on top of static data
+  try{
+    const ap=localStorage.getItem('mist_admin_products');
+    products=ap?JSON.parse(ap):[...(window.MIST_PRODUCTS||[])];
+    const ac=localStorage.getItem('mist_admin_config');
+    cfg=ac?JSON.parse(ac):{...(window.MIST_CONFIG||{})};
+  }catch(e){
+    products=[...(window.MIST_PRODUCTS||[])];
+    cfg={...(window.MIST_CONFIG||{})};
+  }
+  renderDashboard();
+  renderBrandFilter();
+  renderTable();
+  renderPriceTable();
+  renderConfig();
+}
+
+// ── NAV ──────────────────────────────────────────────────
+const TITLES={dashboard:'Dashboard',products:'Produktet',prices:'Çmimet',config:'Konfigurim',export:'Eksporto'};
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item')[['dashboard','products','prices','config','export'].indexOf(id)].classList.add('active');
+  document.getElementById('pageTitle').textContent=TITLES[id]||id;
+  if(id==='prices') renderPriceTable();
+  if(id==='config') renderConfig();
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+function renderDashboard(){
+  const inStock=products.filter(p=>p.a);
+  const outStock=products.filter(p=>!p.a);
+  document.getElementById('st-total').textContent=products.length;
+  document.getElementById('st-brands').textContent=new Set(products.map(p=>p.b)).size;
+  document.getElementById('st-instock').textContent=inStock.length;
+  document.getElementById('st-outstock-sub').textContent=outStock.length+' jashtë stokut';
+  const avg=products.length?products.reduce((s,p)=>s+p.p,0)/products.length:0;
+  document.getElementById('st-avgprice').textContent=avg.toFixed(2)+'€';
+  document.getElementById('st-fem').textContent=products.filter(p=>p.g==='f').length;
+  document.getElementById('st-mas').textContent=products.filter(p=>p.g==='m').length;
+
+  const byBrand={};
+  products.forEach(p=>{
+    if(!byBrand[p.b]) byBrand[p.b]={min:p.p,max:p.p,count:0};
+    byBrand[p.b].count++;
+    if(p.p<byBrand[p.b].min) byBrand[p.b].min=p.p;
+    if(p.p>byBrand[p.b].max) byBrand[p.b].max=p.p;
+  });
+  const sorted=Object.entries(byBrand).sort((a,b)=>b[1].count-a[1].count);
+  document.getElementById('brand-summary-tbody').innerHTML=sorted.map(([brand,v])=>`
+    <tr>
+      <td><strong>${esc(brand)}</strong></td>
+      <td>${v.count}</td>
+      <td>${v.min.toFixed(2)}€</td>
+      <td>${v.max.toFixed(2)}€</td>
+    </tr>`).join('');
+}
+
+// ── BRAND FILTER ───────────────────────────────────────────
+function renderBrandFilter(){
+  const brands=[...new Set(products.map(p=>p.b))].sort();
+  const sel=document.getElementById('prod-brand');
+  sel.innerHTML='<option value="">Të gjitha markat</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+}
+
+// ── PRODUCTS TABLE ─────────────────────────────────────────
+function getFiltered(){
+  const q=(document.getElementById('prod-search').value||'').toLowerCase();
+  const brand=document.getElementById('prod-brand').value;
+  const gender=document.getElementById('prod-gender').value;
+  const stock=document.getElementById('prod-stock').value;
+  return products.filter(p=>{
+    if(q&&!(p.b+' '+p.n).toLowerCase().includes(q)) return false;
+    if(brand&&p.b!==brand) return false;
+    if(gender&&p.g!==gender) return false;
+    if(stock!==''&&String(p.a)!==stock) return false;
+    return true;
+  }).sort((a,b)=>{
+    const va=a[sortKey];const vb=b[sortKey];
+    return typeof va==='string'?va.localeCompare(vb)*sortDir:(va-vb)*sortDir;
+  });
+}
+
+function sortBy(k){
+  if(sortKey===k) sortDir*=-1; else{sortKey=k;sortDir=1;}
+  renderTable();
+}
+
+function renderTable(){
+  const filtered=getFiltered();
+  const totalPages=Math.ceil(filtered.length/PER_PAGE)||1;
+  if(page>totalPages) page=1;
+  const slice=filtered.slice((page-1)*PER_PAGE,page*PER_PAGE);
+
+  const gLabel={f:'Femra',m:'Meshkuj',u:'Unisex'};
+  document.getElementById('prod-tbody').innerHTML=slice.map(p=>`
+    <tr id="row-${p.id}">
+      <td><input type="checkbox" class="row-chk" data-id="${p.id}" onchange="toggleRow('${p.id}',this.checked)" ${selected.has(p.id)?'checked':''}></td>
+      <td class="td-brand">${esc(p.b)}</td>
+      <td class="td-name">${esc(p.n)}</td>
+      <td>${esc(p.s||'')}</td>
+      <td>${esc(p.c||'')}</td>
+      <td><span class="badge-g ${p.g}">${gLabel[p.g]||p.g}</span></td>
+      <td><input class="inline-price" type="number" step="0.01" value="${p.p}" onchange="updatePrice('${p.id}','p',+this.value)" title="Çmimi aktual">€</td>
+      <td><input class="inline-price" type="number" step="0.01" value="${p.o||''}" onchange="updatePrice('${p.id}','o',+this.value||null)" title="Çmimi i vjetër" placeholder="—">€</td>
+      <td>
+        <span class="stock-dot ${p.a?'in':'out'}"></span>
+        <span style="font-size:12px;color:${p.a?'var(--green)':'var(--red)'}">${p.a?'Stok':'Nuk ka'}</span>
+      </td>
+      <td>
+        <div class="action-cell">
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${p.id}')">✎ Edito</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:${p.a?'var(--red)':'var(--green)'}" onclick="toggleStock('${p.id}')">${p.a?'✗ Hiq':'✓ Shto'}</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  // pagination
+  let pag=`<span style="flex:1">${filtered.length} produkte</span>`;
+  if(totalPages>1){
+    pag+=`<button class="pag-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>‹</button>`;
+    const start=Math.max(1,page-2),end=Math.min(totalPages,page+2);
+    for(let i=start;i<=end;i++) pag+=`<button class="pag-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    pag+=`<button class="pag-btn" onclick="goPage(${page+1})" ${page>=totalPages?'disabled':''}>›</button>`;
+  }
+  document.getElementById('pagination').innerHTML=pag;
+  document.getElementById('chk-all').checked=slice.length>0&&slice.every(p=>selected.has(p.id));
+  updateBulkBar();
+}
+
+function goPage(p){page=p;renderTable();}
+
+function toggleRow(id,checked){
+  if(checked) selected.add(id); else selected.delete(id);
+  updateBulkBar();
+  document.getElementById('chk-all').checked=
+    document.querySelectorAll('.row-chk:not(:checked)').length===0&&
+    document.querySelectorAll('.row-chk').length>0;
+}
+
+function toggleAll(checked){
+  document.querySelectorAll('.row-chk').forEach(c=>{
+    c.checked=checked;
+    if(checked) selected.add(c.dataset.id); else selected.delete(c.dataset.id);
+  });
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  const bar=document.getElementById('bulk-bar');
+  if(selected.size>0){bar.classList.add('show');document.getElementById('bulk-count').textContent=selected.size+' të zgjedhur';}
+  else bar.classList.remove('show');
+}
+
+function clearSelection(){selected.clear();renderTable();}
+
+function updatePrice(id,field,val){
+  const p=products.find(x=>x.id===id);
+  if(p){p[field]=val;renderDashboard();}
+}
+
+function toggleStock(id){
+  const p=products.find(x=>x.id===id);
+  if(p){p.a=p.a?0:1;renderTable();renderDashboard();}
+}
+
+function deleteProduct(id){
+  if(!confirm('Fshij këtë produkt?')) return;
+  products=products.filter(p=>p.id!==id);
+  selected.delete(id);
+  renderTable();renderDashboard();renderBrandFilter();
+  toast('Produkti u fshi','success');
+}
+
+function bulkSetStock(val){
+  selected.forEach(id=>{const p=products.find(x=>x.id===id);if(p)p.a=val;});
+  clearSelection();toast(`Stoku u azhurnua`,'success');
+}
+
+function bulkDelete(){
+  if(!confirm(`Fshij ${selected.size} produkte?`)) return;
+  products=products.filter(p=>!selected.has(p.id));
+  selected.clear();renderTable();renderDashboard();renderBrandFilter();
+  toast('Produktet u fshin','success');
+}
+
+// ── PRODUCT MODAL ──────────────────────────────────────────
+function openAddModal(){
+  editId=null;
+  document.getElementById('modal-title').textContent='Produkt i ri';
+  ['brand','name','size','id'].forEach(f=>document.getElementById('f-'+f).value='');
+  document.getElementById('f-price').value='';
+  document.getElementById('f-oldprice').value='';
+  document.getElementById('f-conc').value='EDP';
+  document.getElementById('f-gender').value='u';
+  document.getElementById('f-stock').value='1';
+  document.getElementById('prod-modal').classList.add('open');
+}
+
+function openEditModal(id){
+  const p=products.find(x=>x.id===id);
+  if(!p) return;
+  editId=id;
+  document.getElementById('modal-title').textContent='Edito Produktin';
+  document.getElementById('f-brand').value=p.b||'';
+  document.getElementById('f-name').value=p.n||'';
+  document.getElementById('f-size').value=p.s||'';
+  document.getElementById('f-conc').value=p.c||'EDP';
+  document.getElementById('f-price').value=p.p||'';
+  document.getElementById('f-oldprice').value=p.o||'';
+  document.getElementById('f-gender').value=p.g||'u';
+  document.getElementById('f-stock').value=String(p.a);
+  document.getElementById('f-id').value=p.id;
+  document.getElementById('prod-modal').classList.add('open');
+}
+
+function saveProduct(){
+  const brand=document.getElementById('f-brand').value.trim();
+  const name=document.getElementById('f-name').value.trim();
+  if(!brand||!name){toast('Marka dhe emri janë të detyrueshme','error');return;}
+  const price=parseFloat(document.getElementById('f-price').value);
+  if(isNaN(price)||price<=0){toast('Çmimi duhet të jetë i vlefshëm','error');return;}
+
+  const data={
+    b:brand,n:name,s:document.getElementById('f-size').value.trim(),
+    c:document.getElementById('f-conc').value,p:price,
+    o:parseFloat(document.getElementById('f-oldprice').value)||null,
+    g:document.getElementById('f-gender').value,
+    a:parseInt(document.getElementById('f-stock').value),
+    d:new Date().toISOString().slice(0,10),
+  };
+
+  if(editId){
+    const idx=products.findIndex(x=>x.id===editId);
+    if(idx>=0){data.id=editId;products[idx]={...products[idx],...data};}
+    toast('Produkti u azhurnua','success');
+  } else {
+    let id=document.getElementById('f-id').value.trim()||
+      (brand+'-'+name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    if(products.find(x=>x.id===id)) id+='-'+Date.now();
+    data.id=id;products.unshift(data);
+    toast('Produkti u shtua','success');
+  }
+  closeModal('prod-modal');
+  renderTable();renderDashboard();renderBrandFilter();renderPriceTable();
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.getElementById('prod-modal').addEventListener('click',function(e){if(e.target===this)closeModal('prod-modal');});
+
+// ── PRICE TABLE ────────────────────────────────────────────
+function renderPriceTable(){
+  const sorted=[...products].sort((a,b)=>a.b.localeCompare(b.b)||a.n.localeCompare(b.n));
+  document.getElementById('price-tbody').innerHTML=sorted.map(p=>{
+    const off=p.o?Math.round((1-p.p/p.o)*100):0;
+    return `<tr>
+      <td class="td-brand">${esc(p.b)}</td>
+      <td class="td-name">${esc(p.n)}</td>
+      <td>${esc(p.s||'')}</td>
+      <td><input class="inline-price" style="width:90px" type="number" step="0.01" value="${p.p}" onchange="updatePrice('${p.id}','p',+this.value);this.closest('tr').querySelector('.off-cell').textContent=calcOff(+this.value,${p.o||0})+'%'">€</td>
+      <td><input class="inline-price" style="width:90px" type="number" step="0.01" value="${p.o||''}" onchange="updatePrice('${p.id}','o',+this.value||null)" placeholder="—">€</td>
+      <td class="off-cell" style="color:${off>0?'var(--green)':'var(--text3)'}">${off>0?'-'+off+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function calcOff(p,o){return o>0?Math.round((1-p/o)*100):0;}
+
+function applyPercentage(){
+  const pct=parseFloat(document.getElementById('pct-val').value);
+  if(isNaN(pct)){toast('Vendos një përqindje të vlefshme','error');return;}
+  const gFilter=document.getElementById('pct-filter').value;
+  let count=0;
+  products.forEach(p=>{
+    if(gFilter&&p.g!==gFilter) return;
+    p.p=Math.max(0.01,Math.round(p.p*(1+pct/100)*100)/100);
+    count++;
+  });
+  renderPriceTable();renderDashboard();
+  toast(`${count} çmime u azhurnuan me ${pct>0?'+':''}${pct}%`,'success');
+}
+
+// ── CONFIG ─────────────────────────────────────────────────
+const CFG_FIELDS=[
+  {k:'instagram',label:'Instagram Username',hint:'pa @'},
+  {k:'messenger',label:'Facebook Messenger ID',hint:'numri i faqes'},
+  {k:'orderEmail',label:'Email për porosi (FormSubmit alias)',hint:'alias nga formsubmit.co'},
+  {k:'phone',label:'Numri i telefonit',hint:'p.sh. +38349206796'},
+  {k:'currency',label:'Monedha',hint:'p.sh. €'},
+  {k:'pageSize',label:'Produkte për faqe',hint:'p.sh. 48',type:'number'},
+];
+
+function renderConfig(){
+  document.getElementById('config-grid').innerHTML=CFG_FIELDS.map(f=>`
+    <div class="config-card">
+      <h3>${esc(f.label)}</h3>
+      <div class="form-group" style="margin:0">
+        <input class="form-control" id="cfg-${f.k}" type="${f.type||'text'}" value="${esc(String(cfg[f.k]||''))}" placeholder="${esc(f.hint||'')}" onchange="cfg['${f.k}']=this.value">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px">${esc(f.hint)}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── SAVE / RESET ────────────────────────────────────────────
+function saveAll(){
+  try{
+    localStorage.setItem('mist_admin_products',JSON.stringify(products));
+    localStorage.setItem('mist_admin_config',JSON.stringify(cfg));
+    toast('✓ Të gjitha ndryshimet u ruajtën — faqja kryesore do t\'i shfaqë menjëherë','success');
+  }catch(e){toast('Gabim gjatë ruajtjes: '+e.message,'error');}
+}
+
+function resetAll(confirm_reset){
+  if(confirm_reset&&!confirm('Fshij të gjitha ndryshimet dhe kthehu te të dhënat origjinale?')) return;
+  try{
+    localStorage.removeItem('mist_admin_products');
+    localStorage.removeItem('mist_admin_config');
+  }catch(e){}
+  products=[...(window.MIST_PRODUCTS||[])];
+  cfg={...(window.MIST_CONFIG||{})};
+  renderDashboard();renderBrandFilter();renderTable();renderPriceTable();renderConfig();
+  toast('U kthye te të dhënat origjinale','success');
+}
+
+// ── EXPORT ─────────────────────────────────────────────────
+function exportProducts(){
+  const json=JSON.stringify(products);
+  const content=`/* Generated by Mist Admin — ${new Date().toISOString().slice(0,10)} */\nwindow.MIST_PRODUCTS = ${json};`;
+  download('products.js',content,'text/javascript');
+}
+
+function exportConfig(){
+  const c={...cfg};
+  const fields=CFG_FIELDS.forEach(f=>{if(f.type==='number'&&c[f.k])c[f.k]=Number(c[f.k]);});
+  const content=`/* Mist — settings — ${new Date().toISOString().slice(0,10)} */\nwindow.MIST_CONFIG = ${JSON.stringify(c,null,2)};\n`;
+  download('config.js',content,'text/javascript');
+}
+
+function importProducts(input){
+  const file=input.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const src=e.target.result;
+      const match=src.match(/window\.MIST_PRODUCTS\s*=\s*(\[[\s\S]*?\]);/);
+      if(!match) throw new Error('Format i gabuar');
+      const imported=JSON.parse(match[1]);
+      products=imported;
+      renderDashboard();renderBrandFilter();renderTable();renderPriceTable();
+      toast(`${imported.length} produkte u importuan`,'success');
+    }catch(err){toast('Gabim importimi: '+err.message,'error');}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+function download(name,content,mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download=name;a.click();
+}
+
+// ── UTILS ───────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function logout(){
+  try{localStorage.removeItem('mist_admin_auth');}catch(e){}
+  location.replace('admin-login.html');
+}
+
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show'+(type?' '+type:'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.className='toast',3500);
+}
+</script>
+</body>
+</html>

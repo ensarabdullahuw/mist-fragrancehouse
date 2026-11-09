@@ -1,4 +1,12 @@
 (() => {
+  // Admin overrides: apply before anything renders
+  try {
+    const ap = localStorage.getItem('mist_admin_products');
+    if (ap) window.MIST_PRODUCTS = JSON.parse(ap);
+    const ac = localStorage.getItem('mist_admin_config');
+    if (ac) Object.assign(window.MIST_CONFIG, JSON.parse(ac));
+  } catch(e) {}
+
   const CFG = window.MIST_CONFIG;
   const ALL = window.MIST_PRODUCTS.map(p => ({
     ...p,
