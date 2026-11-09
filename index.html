@@ -2,6 +2,12 @@
 <html lang="sq" data-theme="light">
 <head>
 <meta charset="utf-8">
+<script>
+  // always use the secure address (covers old cached http:// visits)
+  if (location.protocol === "http:" && /mistfragrance\.org$/.test(location.hostname)) location.replace("https://mistfragrance.org" + location.pathname + location.search + location.hash);
+</script>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<link rel="canonical" href="https://mistfragrance.org/">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mist Fragrance House — Gjej aromën që të përfaqëson</title>
 <meta name="description" content="Mist Fragrance House — mbi 500 parfume me çmime të ulëta. Porosit online me disa klikime.">
