@@ -13,9 +13,6 @@ window.MIST_CONFIG = {
   // This is FormSubmit's private alias for the shop's inbox (keeps the address hidden).
   orderEmail: "783b42acc8a687306182a38d93886736",
 
-  // shown to customers if sending fails, so they can still order by phone
-  phone: "+38349206796",
-
   currency: "€",
 
   // how many products to show before "Shfaq më shumë"

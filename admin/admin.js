@@ -505,13 +505,12 @@
   /* ---------- settings ---------- */
   function renderSettings() {
     const f = $("#sForm");
-    ["phone", "instagram", "messenger"].forEach(k => f[k].value = D.settings[k] || "");
+    ["instagram", "messenger"].forEach(k => f[k].value = D.settings[k] || "");
   }
   $("#sForm").addEventListener("change", e => {
     const k = e.target.name; if (!k) return;
     let v = e.target.value.trim();
     if (k === "instagram") v = v.replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/.*$/, "");
-    if (k === "phone") v = v.replace(/[^\d+]/g, "");
     e.target.value = v; D.settings[k] = v; dirty();
   });
   $("#sForm").addEventListener("submit", e => e.preventDefault());

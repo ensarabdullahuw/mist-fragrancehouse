@@ -244,8 +244,16 @@
   $$("input,select,textarea", form).forEach(el => el.addEventListener("input", () => { el.closest(".f")?.classList.remove("err"); $("#formErr").hidden = true; }));
 
   const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
-  const phoneLink = () => `<a href="tel:${CFG.phone}">${CFG.phone.replace(/^\+383(\d{2})(\d{3})(\d{3})$/, "+383 $1 $2 $3")}</a>`;
   let sending = false;
+  // backup if the email service fails: copy the order and open the shop's Instagram DM
+  let failedText = "";
+  $("#formErr").addEventListener("click", e => {
+    if (!e.target.closest("[data-ig]")) return;
+    try { navigator.clipboard.writeText(failedText); } catch {}
+    const w = window.open(`https://ig.me/m/${CFG.instagram}`, "_blank");
+    if (w) w.opener = null; else location.href = `https://ig.me/m/${CFG.instagram}`;
+    toast("Porosia u kopjua — ngjite (paste) te mesazhi dhe dërgoje");
+  });
 
   form.addEventListener("submit", async e => {
     e.preventDefault();
@@ -278,7 +286,7 @@
       _template: "table",
       _captcha: "false",
       _replyto: d.email.trim(),
-      _autoresponse: `Faleminderit, ${d.emri.trim()}! Porosia jote ${code} (${sum}) te Mist Fragrance House u pranua. Do të të telefonojmë sa më shpejt për ta konfirmuar.`,
+      _autoresponse: `Faleminderit, ${d.emri.trim()}! Porosia jote ${code} (${sum}) te Mist Fragrance House u pranua. Do të të kontaktojmë sa më shpejt për ta konfirmuar.`,
       "Porosia": code,
       "Produktet": items.join("\n"),
       "Totali": `${sum} (pa transport)`,
@@ -308,7 +316,9 @@
 
     if (!ok) {
       const err = $("#formErr");
-      err.innerHTML = `Porosia nuk u dërgua — kontrollo internetin dhe provo përsëri, ose na telefono në ${phoneLink()}.`;
+      failedText = `Përshëndetje! Dua të porosis (${code}):\n${items.join("\n")}\nTotali: ${sum}\n\n${name}\nTel: ${d.tel.trim()}\nEmail: ${d.email.trim()}\n${city}, ${d.rruga.trim()}, ${d.nr.trim()}${d.shenim.trim() ? `\nShënime: ${d.shenim.trim()}` : ""}`;
+      err.innerHTML = `Porosia nuk u dërgua. Provo përsëri, ose dërgoje në Instagram: porosia kopjohet vetë, ti vetëm ngjite (paste) dhe shtyp dërgo.
+        <button type="button" class="btn btn--line btn--wide" data-ig style="margin-top:10px">Dërgoje në Instagram</button>`;
       err.hidden = false;
       return;
     }
