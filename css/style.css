@@ -188,7 +188,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-hei
 .card__size{font-size:12px;color:var(--ink-3)}
 .card__foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px}
 .price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.price b{font:600 21px/1 var(--serif);white-space:nowrap}
+.price b{font:500 19px/1 var(--sans);letter-spacing:.01em;white-space:nowrap}
 .price s{font-size:12px;color:var(--ink-3);white-space:nowrap}
 .add{
   flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
@@ -209,7 +209,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-hei
 .grid[data-size="sm"] .card__name{font-size:16px;margin:3px 0 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .grid[data-size="sm"] .card__size{display:none}
 .grid[data-size="sm"] .card__foot{padding-top:8px}
-.grid[data-size="sm"] .price b{font-size:17px}
+.grid[data-size="sm"] .price b{font-size:15px}
 .grid[data-size="sm"] .price s{display:none}
 .grid[data-size="sm"] .add{width:32px;height:32px}
 .grid[data-size="sm"] .add svg{width:15px;height:15px}
@@ -361,11 +361,11 @@ h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-hei
   .grid[data-size="sm"]{grid-template-columns:repeat(3,1fr);gap:8px}
   .grid[data-size="lg"] .card__body{padding:4px 12px 12px}
   .grid[data-size="lg"] .card__name{font-size:18px}
-  .grid[data-size="lg"] .price b{font-size:18px}
+  .grid[data-size="lg"] .price b{font-size:16px}
   .grid[data-size="lg"] .add{width:34px;height:34px}
   .grid[data-size="sm"] .card__name{font-size:14px}
   .grid[data-size="sm"] .card__brand{font-size:8.5px}
-  .grid[data-size="sm"] .price b{font-size:15px}
+  .grid[data-size="sm"] .price b{font-size:14px}
   .grid[data-size="sm"] .add{width:28px;height:28px}
   .grid[data-size="sm"] .card__off{display:none}
   .how{padding:60px 16px}
